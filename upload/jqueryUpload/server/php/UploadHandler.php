@@ -37,7 +37,8 @@ class UploadHandler
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
         'image_resize' => 'Failed to resize image',
-		'insert_db_failed' => 'Failed to insert in database'
+		'insert_db_failed' => 'Failed to insert in database',
+		'duplicate_key' => 'File already uploaded'
     );
 
     protected $image_objects = array();
@@ -90,9 +91,9 @@ class UploadHandler
             // is enabled, set to 0 to disable chunked reading of files:
             'readfile_chunk_size' => 10 * 1024 * 1024, // 10 MiB
             // Defines which files can be displayed inline when downloaded:
-            'inline_file_types' => '/\.(gif|jpe?g|png)$/i',
+            'inline_file_types' => '/\.(jpe?g|png)$/i',
             // Defines which files (based on their names) are accepted for upload:
-            'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+            'accept_file_types' => '/\.(jpe?g|png)$/i',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => 10000000,
@@ -100,7 +101,7 @@ class UploadHandler
             // The maximum number of files for the upload directory:
             'max_number_of_files' => null,
             // Defines which files are handled as image files:
-            'image_file_types' => '/\.(gif|jpe?g|png)$/i',
+            'image_file_types' => '/\.(jpe?g|png)$/i',
             // Use exif_imagetype on all files to correct file extensions:
             'correct_image_extensions' => false,
             // Image resolution restrictions:
@@ -485,7 +486,7 @@ class UploadHandler
             $index, $content_range) {
         // Add missing file extension for known image types:
         if (strpos($name, '.') === false &&
-                preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+                preg_match('/^image\/(jpe?g|png)/', $type, $matches)) {
             $name .= '.'.$matches[1];
         }
         if ($this->options['correct_image_extensions'] &&
@@ -1060,10 +1061,18 @@ class UploadHandler
         $file = new \stdClass();
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
+		error_log('in before insert func '.$uploaded_file.' name '.$name );
+		
+		$tmpHashName = sha1_file($uploaded_file);
+		$file->name = $this->fix_file_extension($uploaded_file, $tmpHashName, $size, $type, $error,
+            $index, $content_range);
+		error_log($file->name);
         $file->size = $this->fix_integer_overflow((int)$size);
         $file->type = $type;
-		if($this->insertInDB($file->name)){
-			if ($this->validate($uploaded_file, $file, $error, $index)) {
+		
+		if ($this->validate($uploaded_file, $file, $error, $index)) {
+			$returnMsg = $this->insertInDB($file->name);
+			if($returnMsg == "OK"){
 				$this->handle_form_data($file, $index);
 				$upload_dir = $this->get_upload_path();
 				if (!is_dir($upload_dir)) {
@@ -1105,13 +1114,18 @@ class UploadHandler
 					}
 				}
 				$this->set_additional_file_properties($file);
+			}else{
+				if (strpos($returnMsg, "Duplicate entry") !== false){
+					$file->error = $this->get_error_message('duplicate_key');
+				}else{
+					$file->error = $this->get_error_message('insert_db_failed');
+				}
+				$this->set_additional_file_properties($file);
+				return $file;
 			}
-			return $file;
-		}else{
-			$file->error = $this->get_error_message('insert_db_failed');
-			$this->set_additional_file_properties($file);
-			return $file;
 		}
+		return $file;
+		
         
     }
 	protected function insertInDB($filename){
@@ -1130,10 +1144,12 @@ class UploadHandler
 
 		if ($conn->query($sql) === TRUE) {
 			$conn->close();
-			return true;
+			return "OK";
 		} else {
+			$error = $conn->error;
 			$conn->close();
-			return false;
+			error_log($error);
+			return $error;
 		}
 	}
     protected function readfile($file_path) {
@@ -1402,6 +1418,7 @@ class UploadHandler
             $file_path = $this->get_upload_path($file_name);
             $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
             if ($success) {
+				$this->deleteInDB($file_name);
                 foreach ($this->options['image_versions'] as $version => $options) {
                     if (!empty($version)) {
                         $file = $this->get_upload_path($file_name, $version);
@@ -1415,6 +1432,33 @@ class UploadHandler
         }
         return $this->generate_response($response, $print_response);
     }
+	protected function deleteInDB($filename){
+		$servername = "localhost";
+		$username = "labelImgManager";
+		$password = "Y8iRL0yA8zCLbAaV";
+		$dbname = "labelimgdb";
+	
+		$conn = new mysqli($servername, $username, $password, $dbname);
+		if ($conn->connect_error) {
+			die("Connection failed: " . $conn->connect_error);
+		} 
+		
+		$sql = "DELETE are FROM `labelimglinks`  lnk 
+				JOIN labelimgarea are 
+				ON are.source = lnk.id 
+				WHERE lnk.path = '$filename'";
+		$conn->query($sql);
+		
+		$sql = "DELETE FROM `labelimglinks` WHERE `path`='$filename'";
+
+		if ($conn->query($sql) === TRUE) {
+			$conn->close();
+			return true;
+		} else {
+			$conn->close();
+			return false;
+		}
+	}
 
     protected function basename($filepath, $suffix = null) {
         $splited = preg_split('/\//', rtrim ($filepath, '/ '));

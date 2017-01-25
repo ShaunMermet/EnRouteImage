@@ -21,7 +21,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <![endif]-->
 <meta charset="utf-8">
-<title>jQuery File Upload Demo</title>
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery. Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap styles -->
@@ -44,7 +43,7 @@
         <div class="panel-body">
             <ul>
                 <li>The maximum file size for uploads is <strong>10 MB</strong>.</li>
-                <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed.</li>
+                <li>Only image files (<strong>JPG, PNG</strong>) are allowed.</li>
             </ul>
         </div>
     </div>
@@ -145,6 +144,19 @@
         </td>
         <td>
             <span class="size">{%=o.formatFileSize(file.size)%}</span>
+        </td>
+		<td>
+            {% if (file.deleteUrl) { %}
+                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+            {% } else { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% } %}
         </td>
     </tr>
 {% } %}

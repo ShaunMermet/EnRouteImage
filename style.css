@@ -19,6 +19,11 @@ font-family: 'Droid Sans', sans-serif;
     user-select: none;
 }
 
+.imgcontainer {
+    //position: relative;
+}
+
+
 .column {
     //flex: 1;
 	
@@ -38,6 +43,7 @@ font-family: 'Droid Sans', sans-serif;
 	//flex-grow: 1;
 	order: 1;
 	//flex: 0 0 auto;
+	//z-index: 100;
 }
 .column-two {
     order: 4;
@@ -53,7 +59,7 @@ font-family: 'Droid Sans', sans-serif;
     //min-width: 0;
 }
 .column-four img{
-	max-width: 100%;
+	//max-width: 100%;
 }
 
 .btn-upload {

@@ -33,19 +33,19 @@ if (!empty($_POST))
 	if ($conn->connect_error) {
 		die("Connection failed: " . $conn->connect_error);
 	} 
-
+	
+	$source = mysqli_real_escape_string($conn,($data->dataSrc));
 	
 	$rects= $data->rects;
 	foreach ($rects as $num => $rect) {//for each rectangle
 		print_r("\nrectnumber".$num."\n");
 		
 		//format data to insert
-		$source = mysqli_real_escape_string($conn,($data->dataSrc));
 		$rectType = mysqli_real_escape_string($conn,($rect->type));
 		$rectLeft = mysqli_real_escape_string($conn,($rect->rectLeft));
 		$rectTop = mysqli_real_escape_string($conn,($rect->rectTop));
-		$rectWidth = mysqli_real_escape_string($conn,($rect->rectWidth));
-		$rectHeight = mysqli_real_escape_string($conn,($rect->rectHeight));
+		$rectRight = mysqli_real_escape_string($conn,($rect->rectRight));
+		$rectBottom = mysqli_real_escape_string($conn,($rect->rectBottom));
 		
 		
 		
@@ -58,8 +58,8 @@ if (!empty($_POST))
 		lia.rectType='$rectType' AND 
 		lia.rectLeft='$rectLeft' AND 
 		lia.rectTop='$rectTop' AND 
-		lia.rectWidth='$rectWidth' AND 
-		lia.rectHeight='$rectHeight';";
+		lia.rectRight='$rectRight' AND 
+		lia.rectBottom='$rectBottom';";
 		$result = $conn->query($sql);
 
 		if ($result->num_rows > 0) {
@@ -70,8 +70,8 @@ if (!empty($_POST))
 			/////////// INSERT ////////////////
 			//Create sql;
 			$sql = "
-			INSERT INTO labelimgarea (source, rectType, rectLeft,rectTop,rectWidth,rectHeight)
-			VALUES ('$source','$rectType','$rectLeft','$rectTop','$rectWidth','$rectHeight')";
+			INSERT INTO labelimgarea (source, rectType, rectLeft,rectTop,rectRight,rectBottom)
+			VALUES ('$source','$rectType','$rectLeft','$rectTop','$rectRight','$rectBottom')";
 
 			//check insert
 			if ($conn->query($sql) === TRUE) {

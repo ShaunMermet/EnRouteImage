@@ -13,15 +13,15 @@
 	<section>
 	<div class="container">
 		<div class="column column-one">
-			<button id="ValidateButton"class="button" type="button" onclick="onValidateClicked()">Validate</button>
-			<button id="DenyButton"class="button" type="button" onclick="onDenyClicked()">Reject</button>
+			<button id="ValidateButton"class="button-validate" type="button" onclick="onValidateClicked()">Validate</button>
+			<button id="RejectButton"class="button-reject" type="button" onclick="onRejectClicked()">Reject</button>
 			<button id="moreButton"class="button" type="button" onclick="onMoreClicked()">More image</button>
 			<div id="imgCounter">No image</div>
 			<div><a href = "../logout.php">Sign Out</a></div>
 		</div>
 		<div class="column column-four">
 			<div id="preview" ondragstart="return false;" ondrop="return false;">
-			
+				<img id='image' unselectable='on' src='' />
 			</div>
 			
 		</div>

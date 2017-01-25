@@ -48,7 +48,7 @@ $("#the-photo-file-field").change(function() {
 loadImages();
 function loadImages(){
 	var http_get_img = new XMLHttpRequest();
-	var url = "label/get_img_clean.php";
+	var url = "php/get_img_clean.php";
 
 	http_get_img.open("GET", url, true);
 
@@ -57,9 +57,11 @@ function loadImages(){
 			// Action to be performed when the document is read;
 			console.log("select img done");
 			console.log(http_get_img.responseText);
-			var res = JSON.parse(http_get_img.responseText);
-			//var res = http_get_img.responseText.split(";").filter(function(el) {return el.length != 0});;
-			imgPathList = res;
+			if(http_get_img.responseText!=""){
+				var res = JSON.parse(http_get_img.responseText);
+				imgPathList = res;
+			}
+			else imgPathList = [];
 			imgPathListIndex = 0;
 			addImage();
 		}
@@ -68,20 +70,35 @@ function loadImages(){
 }
 
 function addImage(){
-	srcName = imgPathList[imgPathListIndex].id;
-	var imgName = imgPathList[imgPathListIndex].path;
-	var imgToAdd = imgPath+imgName;
-	$('#preview').html("<img id='image' unselectable='on' src='"+imgToAdd+"' />")
-	initSelection();
-	document.getElementById('imgCounter').innerHTML = "Image "+(imgPathListIndex+1)+" on "+imgPathList.length;
-	document.getElementById("moreButton").style = "DISPLAY: none;";
-	document.getElementById("nextButton").style = "DISPLAY: initial;";
+	if(imgPathList.length>0){
+		srcName = imgPathList[imgPathListIndex].id;
+		var imgName = imgPathList[imgPathListIndex].path;
+		var imgToAdd = imgPath+imgName;
+		document.getElementById('image').src = imgToAdd;//$('#preview').html("<img id='image' unselectable='on' onresize='"onImgResize()"' src='"+imgToAdd+"' />")
+		initSelection();
+		document.getElementById('imgCounter').innerHTML = "Image "+(imgPathListIndex+1)+" of "+imgPathList.length;
+		document.getElementById("moreButton").style = "DISPLAY: none;";
+		document.getElementById("nextButton").style = "DISPLAY: initial;";
+	}
 }
+
+function onImgResize(){
+	console.log("resize");
+}
+window.addEventListener("resize", function(){
+   if(window.innerWidth < 768){
+      console.log('narrow');
+   }
+   else{
+       console.log('wide');
+   }
+});
 
 function nextImage(){
 	if(imgPathList.length>0){
 		wipeRectangle();
 		removeImage();
+		freeImage(imgPathList[imgPathListIndex].id);
 		imgPathListIndex++;
 		if(imgPathListIndex<imgPathList.length)
 			addImage();
@@ -89,6 +106,7 @@ function nextImage(){
 			console.log("no more img");
 			document.getElementById("moreButton").style = "DISPLAY: initial;";
 			document.getElementById("nextButton").style = "DISPLAY: none;";
+			//loadImages();
 		}
 	}
 }
@@ -96,7 +114,8 @@ function nextImage(){
 function removeImage(){
 	var refImage = document.getElementById('image');
 	if(refImage){
-		refImage.remove();
+		//refImage.remove();
+		refImage.src = "";
 	}
 }
 function wipeRectangle(){
@@ -123,7 +142,7 @@ var catColor= [];
 loadCategories();
 function loadCategories(){
 	var http_get_cat = new XMLHttpRequest();
-	var url = "label/get_category.php";
+	var url = "php/get_category.php";
 
 	http_get_cat.open("GET", url, true);
 
@@ -332,7 +351,7 @@ function initDraw(canvas) {
 			element.rectType = type;
 			element.style.left = pageX + 'px';
 			element.style.top = pageY + 'px';
-			element.style.border= "1px solid "+color;
+			element.style.border= "3px solid "+color;
 			element.style.color= color;
 			var text = document.createElement('div');
 			var t = document.createTextNode(str);
@@ -445,17 +464,17 @@ function onNextClicked(){
 		for (var i = 0; i < elements.length; ++i) {
 			var rectLeft = elements[i].offsetLeft - elements[i].parentElement.offsetLeft ;
 			var rectTop = elements[i].offsetTop - elements[i].parentElement.offsetTop;
-			var rectWidth = elements[i].clientWidth;
-			var rectHeight = elements[i].clientHeight;
+			var rectRight = rectLeft + elements[i].clientWidth;
+			var rectBottom = rectTop + elements[i].clientHeight;
 			var rectType = elements[i].rectType;
-			data["rects"][i]={type:rectType,rectLeft:rectLeft,rectTop:rectTop,rectWidth:rectWidth,rectHeight:rectHeight}
+			data["rects"][i]={type:rectType,rectLeft:rectLeft,rectTop:rectTop,rectRight:rectRight,rectBottom:rectBottom}
 		}
 		data["dataSrc"]=srcName;
 		console.log(data);
 		
 		////////////////////// POST  //////////////
 		var http_post_data = new XMLHttpRequest();
-		var url = "label/post_data.php";
+		var url = "php/post_data.php";
 
 		http_post_data.open("POST", url, true);
 
@@ -477,10 +496,38 @@ function onNextClicked(){
 		nextImage();
 	}
 }
+function freeImage (idImage){
+		var data= {};
+		data["dataSrc"]=idImage;
+		////////////////////// POST  //////////////
+		var http_post_data = new XMLHttpRequest();
+		var url = "php/post_freeImage.php";
+
+		http_post_data.open("POST", url, true);
+
+		//Send the proper header information along with the request
+		http_post_data.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		
+		http_post_data.onreadystatechange = function() {//Call a function when the state changes.
+			if(http_post_data.readyState == 4 && http_post_data.status == 200) {
+				//alert(http_post_data.responseText);
+				console.log(http_post_data.responseText);
+			}
+		}
+		var json = JSON.stringify(data);
+		http_post_data.send("data=" +json);
+		//////////////////////////////////////////////
+}
 function onMoreClicked(){
 	loadImages();
 	console.log("Load more");
 }
+window.onbeforeunload = function(e) {
+	for(var i = imgPathListIndex; i < imgPathList.length; ++i){
+		freeImage (imgPathList[i].id);
+		console.log("Free " +imgPathList[i].id);
+	}
+};
 ////////////////////////////////////////////
 
 

@@ -15,9 +15,10 @@ if ($conn->connect_error) {
 
 $sql = "SELECT lnk.id,lnk.path
 FROM labelimglinks lnk LEFT JOIN labelimgarea are ON lnk.id =are.source
-WHERE are.source IS NULL
+WHERE are.source IS NULL AND lnk.available = 1
 GROUP BY lnk.id
-LIMIT 100";
+ORDER BY RAND()
+LIMIT 20";
 $result = $conn->query($sql);
 header('Content-type: application/json');
 if ($result->num_rows > 0) {
@@ -25,6 +26,11 @@ if ($result->num_rows > 0) {
     $res=array();
 	/* fetch object array */
     while ($obj = $result->fetch_object()) {
+		$sql = "UPDATE `labelimglinks` SET `available` = 0 WHERE `labelimglinks`.`id` = '$obj->id'";	
+		if ($conn->query($sql) === TRUE) {
+		} else {
+			echo "Error: " . $sql . "<br>" . $conn->error;
+		}
 		array_push($res,$obj);
     }
 	echo json_encode($res);

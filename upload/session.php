@@ -11,6 +11,6 @@
    $login_session = $row['username'];
    
    if(!isset($_SESSION['login_user'])){
-      header("location:../login.php");
+      header("location: http://" . $_SERVER['SERVER_NAME']);
    }
 ?>
