@@ -1,15 +1,5 @@
 <?php
-$servername = "localhost";
-$username = "labelImgManager";
-$password = "Y8iRL0yA8zCLbAaV";
-$dbname = "labelimgdb";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-	die("Connection failed: " . $conn->connect_error);
-}
+include('../config.php');
 
 /////////////SELECT ////////////////
 
@@ -19,7 +9,7 @@ WHERE are.source IS NULL AND lnk.available = 1
 GROUP BY lnk.id
 ORDER BY RAND()
 LIMIT 20";
-$result = $conn->query($sql);
+$result = $db->query($sql);
 header('Content-type: application/json');
 if ($result->num_rows > 0) {
 	
@@ -27,9 +17,9 @@ if ($result->num_rows > 0) {
 	/* fetch object array */
     while ($obj = $result->fetch_object()) {
 		$sql = "UPDATE `labelimglinks` SET `available` = 0 WHERE `labelimglinks`.`id` = '$obj->id'";	
-		if ($conn->query($sql) === TRUE) {
+		if ($db->query($sql) === TRUE) {
 		} else {
-			echo "Error: " . $sql . "<br>" . $conn->error;
+			echo "Error: " . $sql . "<br>" . $db->error;
 		}
 		array_push($res,$obj);
     }
@@ -43,5 +33,5 @@ if ($result->num_rows > 0) {
 }
 ///////////////
 
-$conn->close();
+$db->close();
 ?>

@@ -47,8 +47,8 @@ class UploadHandler
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
-            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/../../../../img/',
-            'upload_url' => $this->get_full_url().'/../../../../img/',
+            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/../../../img/',
+            'upload_url' => $this->get_full_url().'/../../../img/',
             'input_stream' => 'php://input',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
@@ -1116,11 +1116,11 @@ class UploadHandler
 				$this->set_additional_file_properties($file);
 			}else{
 				if (strpos($returnMsg, "Duplicate entry") !== false){
-					$file->error = $this->get_error_message('duplicate_key');
+					$file->error = $this->get_error_message('duplicate_key');//duplicate_key
 				}else{
-					$file->error = $this->get_error_message('insert_db_failed');
+					$file->error = $this->get_error_message('insert_db_failed');//insert_db_failed
 				}
-				$this->set_additional_file_properties($file);
+				//$this->set_additional_file_properties($file);
 				return $file;
 			}
 		}

@@ -1,5 +1,6 @@
 <?php
-include('../session.php');
+include('../sessionOnRequest.php');
+
 
 if (!empty($_POST))
 {
@@ -8,7 +9,6 @@ if (!empty($_POST))
 	
 
 	$category = mysqli_real_escape_string($db,($data->category));
-	error_log("category ".$category);
 	/////////////SELECT ////////////////
 	$sql = "SELECT lnk.path
 			FROM labelimglinks lnk LEFT JOIN labelimgarea are ON lnk.id =are.source
@@ -19,47 +19,88 @@ if (!empty($_POST))
 
 	$result = $db->query($sql);
 	
-	///////////////////
-	/*header('Content-type: application/json');
-	$res=array();
-	array_push($res,$result->num_rows);
-	echo json_encode($res);
-	$result->close();
-	$db->close();*/
-	///////////////
-
-	if ($result->num_rows > 0) {
+	$imgFound = $result->num_rows;
 	
-		$res=array();
+	if ($imgFound > 0) {
+	
+		$sql = "SELECT cat.Category FROM labelimgcategories cat WHERE cat.id= '$category'";
+		$cat = $db->query($sql);
+		$catRes = $cat->fetch_object();
+		$tmpFolder = sha1(rand().microtime());
+		error_log("Folder : ".$tmpFolder);
+		
+		if(!saveTmpFolder($tmpFolder,$tmpFolder."/".$catRes->Category.".zip",$db))
+			exit;
+		
+		mkdir("../tmp/".$tmpFolder, 0700);
+		$filename = ("../tmp/".$tmpFolder."/".$catRes->Category.".zip");
+		$zip = new ZipArchive();
+		$zip->open($filename, ZipArchive::CREATE);
+		
+		$fileNameLink = "";
 		/* fetch object array */
 		while ($obj = $result->fetch_object()) {
 			$path_parts = pathinfo($obj->path);
-			error_log("Fill file ".$path_parts['filename'].".txt");
-			$txtfile = fopen($path_parts['filename'].".txt", "w") or die("Unable to open file!");
+			$fileNameLink = $path_parts['filename'];
+			//error_log("Fill file ".$path_parts['filename'].".txt");
+			$txtfile = fopen("../tmp/".$tmpFolder."/".$path_parts['filename'].".txt", "w") or die("Unable to open file!");
 			$sql = "SELECT cat.Category,are.rectLeft,are.rectTop,are.rectRight,are.rectBottom
 FROM labelimglinks lnk LEFT JOIN labelimgarea are ON lnk.id =are.source LEFT JOIN labelimgcategories cat ON cat.id=are.rectType
-WHERE are.source IS NOT NULL AND lnk.validated = 1 AND are.rectType = '1'AND lnk.path = '$obj->path'";	
+WHERE are.source IS NOT NULL AND lnk.validated = 1 AND are.rectType = '$category' AND lnk.path = '$obj->path'";	
 			$rows = $db->query($sql);
+			$curImg = 0;
 			while ($rect = $rows->fetch_object()) {
-				$line = "0 0 0 ".$rect->Category." ".$rect->rectLeft." ".$rect->rectTop." ".$rect->rectRight." ".$rect->rectBottom." 0 0 0 0 0 0 0";
+				$line = $rect->Category." 0 0 0 ".$rect->rectLeft." ".$rect->rectTop." ".$rect->rectRight." ".$rect->rectBottom." 0 0 0 0 0 0 0";
 				fwrite($txtfile, $line);
 				fwrite($txtfile, "\n");
-				error_log($line);
+				//error_log($line);
+				$curImg++;
+				$prct = $curImg/$imgFound*100;
 			}
 			fclose($txtfile);
-			//array_push($res,$obj);*/
+			$zip->addFile("../tmp/".$tmpFolder."/".$path_parts['filename'].".txt", $path_parts['filename'].".txt");
+			$zip->addFile("../img/".$obj->path, $obj->path);
 		}
-		echo json_encode($res);
-
+		
 		/* free result set */
+		$zip->close();
+		$cat->close();
 		$result->close();
 		$rows->close();
+		
+		$res=array("link"=>$tmpFolder,"msg"=>"Download Ready");
+		echo json_encode($res);
+		
 	}
+	else
+		echo json_encode("No file found");
 	
 }
 else // $_POST is empty.
 {
-    echo "No data";
+    echo json_encode("No data");
+}
+
+function saveTmpFolder($token, $archivePath,$db){
+	//$token = $tmpFolder;
+	//$archivePath = $catRes->Category.".zip";
+	$nextSix = time() + (6 * 60 * 60);
+	$expires = date('Y-m-d H:i:s', $nextSix);
+	
+	error_log("token : ".$token);
+	error_log("archivePath : ".$archivePath);
+	error_log("expires : ".$expires);
+	//$sql = "";
+	$sql = "
+			INSERT INTO labelimgexportlinks (token, archivePath, expires)
+			VALUES ('$token','$archivePath','$expires')";
+
+	//check insert
+	if ($db->query($sql) === TRUE) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 ?>

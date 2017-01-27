@@ -1,3 +1,4 @@
 <?php
-include("label/labelImg.html");
+header("Location: label")
+//include("label/labelImg.html");
 ?>

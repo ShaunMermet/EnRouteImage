@@ -1,5 +1,5 @@
 <?php
-
+include('../config.php');
 if (!empty($_POST))
 {
     echo "Data sended to server\n";
@@ -20,32 +20,19 @@ if (!empty($_POST))
 
 	}*/
 	
-	$servername = "localhost";
-	$username = "labelImgManager";
-	$password = "Y8iRL0yA8zCLbAaV";
-	$dbname = "labelimgdb";
-
 	
-	
-	// Create connection
-	$conn = new mysqli($servername, $username, $password, $dbname);
-	// Check connection
-	if ($conn->connect_error) {
-		die("Connection failed: " . $conn->connect_error);
-	} 
-	
-	$source = mysqli_real_escape_string($conn,($data->dataSrc));
+	$source = mysqli_real_escape_string($db,($data->dataSrc));
 	
 	$rects= $data->rects;
 	foreach ($rects as $num => $rect) {//for each rectangle
 		print_r("\nrectnumber".$num."\n");
 		
 		//format data to insert
-		$rectType = mysqli_real_escape_string($conn,($rect->type));
-		$rectLeft = mysqli_real_escape_string($conn,($rect->rectLeft));
-		$rectTop = mysqli_real_escape_string($conn,($rect->rectTop));
-		$rectRight = mysqli_real_escape_string($conn,($rect->rectRight));
-		$rectBottom = mysqli_real_escape_string($conn,($rect->rectBottom));
+		$rectType = mysqli_real_escape_string($db,($rect->type));
+		$rectLeft = mysqli_real_escape_string($db,($rect->rectLeft));
+		$rectTop = mysqli_real_escape_string($db,($rect->rectTop));
+		$rectRight = mysqli_real_escape_string($db,($rect->rectRight));
+		$rectBottom = mysqli_real_escape_string($db,($rect->rectBottom));
 		
 		
 		
@@ -60,7 +47,7 @@ if (!empty($_POST))
 		lia.rectTop='$rectTop' AND 
 		lia.rectRight='$rectRight' AND 
 		lia.rectBottom='$rectBottom';";
-		$result = $conn->query($sql);
+		$result = $db->query($sql);
 
 		if ($result->num_rows > 0) {
 			// do nothing
@@ -74,10 +61,10 @@ if (!empty($_POST))
 			VALUES ('$source','$rectType','$rectLeft','$rectTop','$rectRight','$rectBottom')";
 
 			//check insert
-			if ($conn->query($sql) === TRUE) {
+			if ($db->query($sql) === TRUE) {
 				echo "New record created successfully";
 			} else {
-				echo "Error: " . $sql . "<br>" . $conn->error;
+				echo "Error: " . $sql . "<br>" . $db->error;
 			}
 			////////////////////////////////
 		}
@@ -93,7 +80,7 @@ if (!empty($_POST))
 
 	}
 	
-	$conn->close();
+	$db->close();
 	
 	
 	

@@ -2,17 +2,23 @@
 var catId = [];
 var catText=[];
 var catColor= [];
+var phpPath = "../../php/";
+document.getElementById("dlButton").disabled = true;
+document.getElementById("dlButton").style.opacity = 0.5;
+var token = "";
 
 loadCategories();
 function loadCategories(){
-	var http_get_cat = new XMLHttpRequest();
-	var url = "../../php/get_category.php";
+	var http_req = new XMLHttpRequest();
+	var url = phpPath+"get_category.php";
 
-	http_get_cat.open("GET", url, true);
+	http_req.open("GET", url, true);
 
-	http_get_cat.onreadystatechange = function() {
-		if (http_get_cat.readyState == 4 && http_get_cat.status == 200) {
-			var res = JSON.parse(http_get_cat.responseText);
+	http_req.onreadystatechange = function() {
+		if (http_req.readyState == 4 && http_req.status == 200) {
+			if(http_req.responseText == "session_closed")
+				window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
+			var res = JSON.parse(http_req.responseText);
 			for(i = 0; i < res.length; i++){
 				catId[i] = parseInt(res[i].id);
 				catText[i] = res[i].Category;
@@ -21,7 +27,7 @@ function loadCategories(){
 			initCombo();
 		}
 	};
-	http_get_cat.send();
+	http_req.send();
 }
 
 function initCombo(){
@@ -51,7 +57,7 @@ function getNbrInCat(){
 	var combo = document.getElementById("combo");
 	data["category"]=combo.value;
 	var http_req = new XMLHttpRequest();
-	var url = "../../php/post_nbrImgInCat.php";
+	var url = phpPath+"post_nbrImgInCat.php";
 
 	http_req.open("POST", url, true);
 
@@ -59,6 +65,10 @@ function getNbrInCat(){
 	
 	http_req.onreadystatechange = function() {
 		if(http_req.readyState == 4 && http_req.status == 200) {
+			console.log(location.hostname);
+			console.log(window.location.pathname);
+			if(http_req.responseText == "session_closed")
+				window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
 			var res = JSON.parse(http_req.responseText);
 			console.log(res[0]);
 			document.getElementById('imgCounter').innerHTML = res[0]+" Image(s) found";
@@ -75,7 +85,7 @@ function onExportClicked(){
 	var data= {};
 	data["category"]=selectedCat;
 	var http_req = new XMLHttpRequest();
-	var url = "../../php/post_export.php";
+	var url = phpPath+"post_export.php";
 
 	http_req.open("POST", url, true);
 
@@ -83,11 +93,30 @@ function onExportClicked(){
 	
 	http_req.onreadystatechange = function() {
 		if(http_req.readyState == 4 && http_req.status == 200) {
+			if(http_req.responseText == "session_closed")
+				window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
+			console.log(http_req.responseText);
+			console.log("Response Over");
 			var res = JSON.parse(http_req.responseText);
-			
+			if(typeof res === 'object' && "link" in res){
+				document.getElementById("dlButton").disabled = false;
+				document.getElementById("dlButton").style.opacity = 1;
+				token = res.link;
+				document.getElementById('imgCounter').innerHTML = "Download ready";
+				//document.getElementById('dlLink').innerHTML = "<a href='../download.php?id="+token+"'>Download ready</a>";
+			}
+			else if( res == "No file found")
+				document.getElementById('imgCounter').innerHTML = "No file";
 			
 		}
 	}
 	var json = JSON.stringify(data);
 	http_req.send("data=" +json);
+	document.getElementById('imgCounter').innerHTML = "Preparing download...";
+}
+function onDlClicked(){
+	document.getElementById("dlButton").disabled = true;
+	document.getElementById("dlButton").style.opacity = 0.5;
+	window.location.href = "../download.php?id="+token;
+	document.getElementById('imgCounter').innerHTML = "";
 }

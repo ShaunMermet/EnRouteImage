@@ -1,9 +1,11 @@
+
+
 <!doctype html>
 
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="../style.css">
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
@@ -34,6 +36,6 @@
 	</div>
 		
 	</section>
-	<script type="text/javascript" src="label/labelimg.js"></script>
+	<script type="text/javascript" src="../js/label/label.js"></script>
 </body>
 </html>

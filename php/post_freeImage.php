@@ -1,33 +1,19 @@
 <?php
-
+include('../config.php');
 if (!empty($_POST))
 {
     echo "Data sended to server\n";
 	
 	$data = json_decode(($_POST['data']));
-	
-	$servername = "localhost";
-	$username = "labelImgManager";
-	$password = "Y8iRL0yA8zCLbAaV";
-	$dbname = "labelimgdb";
 
-	
-	
-	// Create connection
-	$conn = new mysqli($servername, $username, $password, $dbname);
-	// Check connection
-	if ($conn->connect_error) {
-		die("Connection failed: " . $conn->connect_error);
-	} 
-
-	$source = mysqli_real_escape_string($conn,($data->dataSrc));
+	$source = mysqli_real_escape_string($db,($data->dataSrc));
 	$sql = "UPDATE `labelimglinks` SET `available` = 1 WHERE `labelimglinks`.`id` = '$source'";	
-	if ($conn->query($sql) === TRUE) {
+	if ($db->query($sql) === TRUE) {
 	} else {
-		echo "Error: " . $sql . "<br>" . $conn->error;
+		echo "Error: " . $sql . "<br>" . $db->error;
 	}
 	
-	$conn->close();
+	$db->close();
 	
 }
 else // $_POST is empty.

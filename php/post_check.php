@@ -1,4 +1,5 @@
 <?php
+include('../sessionOnRequest.php');
 
 if (!empty($_POST))
 {

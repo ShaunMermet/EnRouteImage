@@ -1,5 +1,5 @@
 <?php
-include('../session.php');
+include('../sessionOnRequest.php');
 
 if (!empty($_POST))
 {

@@ -1,0 +1,5 @@
+Redirect /test/ http://www.yourdomain.com/new_dir/index.html
+
+Options +FollowSymLinks
+RewriteEngine on
+RewriteRule ^/download/([a-z0-9]{20})$  /download.php?id=$1

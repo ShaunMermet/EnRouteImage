@@ -5,8 +5,7 @@
 
 	if(!isset($_SESSION['login_user'])){
 		session_destroy();
-		header("location:http://" . $_SERVER['SERVER_NAME']."/login.php?location=" . urlencode($_SERVER['REQUEST_URI']));
-		//echo("unknown user");
+		echo("session_closed");
 		exit;
 	}
 	else{
@@ -21,7 +20,7 @@
 		$count = mysqli_num_rows($ses_sql);
 		if($count != 1) {
 			session_destroy();
-			header("location:http://" . $_SERVER['SERVER_NAME']."/login.php");
+			echo("session_closed");
 			exit;
 		}
 	}

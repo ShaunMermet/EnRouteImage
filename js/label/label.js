@@ -1,6 +1,7 @@
 var imgPathList=[];
 var imgPathListIndex = 0;
 var imgPath = "../img/";
+var phpPath = "../../php/";
 var srcName = 0;
 
 document.getElementById("openButton").style = "DISPLAY: none;";
@@ -47,18 +48,20 @@ $("#the-photo-file-field").change(function() {
 ////////////GET IMG FROM SERVER//////
 loadImages();
 function loadImages(){
-	var http_get_img = new XMLHttpRequest();
-	var url = "php/get_img_clean.php";
+	var http_req = new XMLHttpRequest();
+	var url = phpPath+"get_img_clean.php";
 
-	http_get_img.open("GET", url, true);
+	http_req.open("GET", url, true);
 
-	http_get_img.onreadystatechange = function() {
-		if (http_get_img.readyState == 4 && http_get_img.status == 200) {
+	http_req.onreadystatechange = function() {
+		if (http_req.readyState == 4 && http_req.status == 200) {
 			// Action to be performed when the document is read;
+			if(http_req.responseText == "session_closed")
+				window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
 			console.log("select img done");
-			console.log(http_get_img.responseText);
-			if(http_get_img.responseText!=""){
-				var res = JSON.parse(http_get_img.responseText);
+			console.log(http_req.responseText);
+			if(http_req.responseText!=""){
+				var res = JSON.parse(http_req.responseText);
 				imgPathList = res;
 			}
 			else imgPathList = [];
@@ -66,7 +69,7 @@ function loadImages(){
 			addImage();
 		}
 	};
-	http_get_img.send();
+	http_req.send();
 }
 
 function addImage(){
@@ -141,15 +144,17 @@ var catColor= [];
 
 loadCategories();
 function loadCategories(){
-	var http_get_cat = new XMLHttpRequest();
-	var url = "php/get_category.php";
+	var http_req = new XMLHttpRequest();
+	var url = phpPath+"get_category.php";
 
-	http_get_cat.open("GET", url, true);
+	http_req.open("GET", url, true);
 
-	http_get_cat.onreadystatechange = function() {
-		if (http_get_cat.readyState == 4 && http_get_cat.status == 200) {
+	http_req.onreadystatechange = function() {
+		if (http_req.readyState == 4 && http_req.status == 200) {
 			// Action to be performed when the document is read;
-			var res = JSON.parse(http_get_cat.responseText);
+			if(http_req.responseText == "session_closed")
+				window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
+			var res = JSON.parse(http_req.responseText);
 			for(i = 0; i < res.length; i++){
 				catId[i] = parseInt(res[i].id);
 				catText[i] = res[i].Category;
@@ -158,7 +163,7 @@ function loadCategories(){
 			initCombo();
 		}
 	};
-	http_get_cat.send();
+	http_req.send();
 }
 
 function initCombo(){
@@ -473,23 +478,25 @@ function onNextClicked(){
 		console.log(data);
 		
 		////////////////////// POST  //////////////
-		var http_post_data = new XMLHttpRequest();
-		var url = "php/post_data.php";
+		var http_req = new XMLHttpRequest();
+		var url = phpPath+"post_data.php";
 
-		http_post_data.open("POST", url, true);
+		http_req.open("POST", url, true);
 
 		//Send the proper header information along with the request
-		http_post_data.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		
-		http_post_data.onreadystatechange = function() {//Call a function when the state changes.
-			if(http_post_data.readyState == 4 && http_post_data.status == 200) {
-				//alert(http_post_data.responseText);
-				console.log(http_post_data.responseText);
+		http_req.onreadystatechange = function() {//Call a function when the state changes.
+			if(http_req.readyState == 4 && http_req.status == 200) {
+				//alert(http_req.responseText);
+				if(http_req.responseText == "session_closed")
+					window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
+				console.log(http_req.responseText);
 				nextImage();
 			}
 		}
 		var json = JSON.stringify(data);
-		http_post_data.send("data=" +json);
+		http_req.send("data=" +json);
 		//////////////////////////////////////////////
 	}
 	else{
@@ -500,22 +507,24 @@ function freeImage (idImage){
 		var data= {};
 		data["dataSrc"]=idImage;
 		////////////////////// POST  //////////////
-		var http_post_data = new XMLHttpRequest();
-		var url = "php/post_freeImage.php";
+		var http_req = new XMLHttpRequest();
+		var url = phpPath+"post_freeImage.php";
 
-		http_post_data.open("POST", url, true);
+		http_req.open("POST", url, true);
 
 		//Send the proper header information along with the request
-		http_post_data.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		
-		http_post_data.onreadystatechange = function() {//Call a function when the state changes.
-			if(http_post_data.readyState == 4 && http_post_data.status == 200) {
-				//alert(http_post_data.responseText);
-				console.log(http_post_data.responseText);
+		http_req.onreadystatechange = function() {//Call a function when the state changes.
+			if(http_req.readyState == 4 && http_req.status == 200) {
+				//alert(http_req.responseText);
+				if(http_req.responseText == "session_closed")
+					window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
+				console.log(http_req.responseText);
 			}
 		}
 		var json = JSON.stringify(data);
-		http_post_data.send("data=" +json);
+		http_req.send("data=" +json);
 		//////////////////////////////////////////////
 }
 function onMoreClicked(){
