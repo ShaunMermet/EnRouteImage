@@ -120,3 +120,30 @@ function onDlClicked(){
 	window.location.href = "../download.php?id="+token;
 	document.getElementById('imgCounter').innerHTML = "";
 }
+window.onbeforeunload = function(e) {
+	freeDL (token);
+		console.log("Free " +token);
+};
+function freeDL (token){
+		var data= {};
+		data["token"]=token;
+		////////////////////// POST  //////////////
+		var http_req = new XMLHttpRequest();
+		var url = phpPath+"post_freeDL.php";
+
+		http_req.open("POST", url, true);
+
+		//Send the proper header information along with the request
+		http_req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		
+		http_req.onreadystatechange = function() {//Call a function when the state changes.
+			if(http_req.readyState == 4 && http_req.status == 200) {
+				if(http_req.responseText == "session_closed")
+					window.location.replace("http://"+location.hostname+"/login.php?location="+location.pathname);
+				console.log(http_req.responseText);
+			}
+		}
+		var json = JSON.stringify(data);
+		http_req.send("data=" +json);
+		////////////////////////////////////////////////
+}
