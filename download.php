@@ -15,7 +15,7 @@ if(!isset($_GET['id'])) {
 else{
 	error_log($_GET['id']);
 }
-
+error_log("etape 1");
 //$token = $_GET['id'];
 $token = mysqli_real_escape_string($db,$_GET['id']);
 $sql = "SELECT exlk.archivePath FROM labelimgexportlinks exlk WHERE exlk.token = '$token'";
@@ -23,22 +23,23 @@ $res = $db->query($sql);
 $tmpLink = $res->fetch_object();
 
 $count = mysqli_num_rows($res);
+error_log($count);
 if($count != 1) 
 	exit;
-
+error_log("etape 2");
 
 $filename = "tmp/".$tmpLink->archivePath;
 
 if (!file_exists($filename)) 
 	exit;
-
+error_log("etape 3");
 error_log($filename);
 // send $filename to browser
 $finfo = finfo_open(FILEINFO_MIME_TYPE);
 $mimeType = finfo_file($finfo, $filename);
 $size = filesize($filename);
 $name = basename($filename);
- 
+ error_log("etape 4");
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
 	// cache settings for IE6 on HTTPS
 	header('Cache-Control: max-age=120');
@@ -54,7 +55,7 @@ header("Accept-Ranges: bytes");
 header('Content-Length: ' . filesize($filename));
  
 print readfile($filename);
-
+error_log("etape 5");
 rrmdir("tmp/".$token);
 
 $sql = "DELETE FROM `labelimgexportlinks` WHERE `labelimgexportlinks`.`token` = '$token'";

@@ -94,6 +94,7 @@ foreach($tmpArray as $file){
 			if(date('Y-m-d H:i:s') > $token->expires ){
 				$sql = "DELETE FROM `labelimgexportlinks` WHERE token = '$folder'";	
 				if ($db->query($sql) === TRUE) {
+					if(file_exists ("../tmp/".$token))
 						rrmdir("../tmp/".$token);
 				} else {
 					echo "Error: " . $sql . "<br>" . $db->error;
@@ -101,11 +102,26 @@ foreach($tmpArray as $file){
 				error_log("Clean : ".$folder);
 			}else{
 				error_log("NO Clean : ".$folder);
-				exit;
 			}
 		}
+		$count = mysqli_num_rows($tokens);
+		if($count == 0) 
+			if(file_exists ("../tmp/".$token->token))
+			rrmdir("../tmp/".$token->token);
 	}
-	// DANGER//rrmdir("../tmp/".$folder);
+}
+$sql = "SELECT `token`,`expires` FROM `labelimgexportlinks` WHERE 1";
+$tokens = $db->query($sql);
+while ($token = $tokens->fetch_object()) {
+	if(date('Y-m-d H:i:s') > $token->expires ){
+		$sql = "DELETE FROM `labelimgexportlinks` WHERE token = '$token->token'";	
+		if ($db->query($sql) === TRUE) {
+			if(file_exists ("../tmp/".$token->token))
+				rrmdir("../tmp/".$token->token);
+		} else {
+			echo "Error: " . $sql . "<br>" . $db->error;
+		}
+	}
 }
 function rrmdir($src) {
 	$dir = opendir($src);

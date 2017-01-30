@@ -1139,8 +1139,8 @@ class UploadHandler
 			die("Connection failed: " . $conn->connect_error);
 		} 
 		$sql = "
-			INSERT INTO labelimglinks (path)
-			VALUES ('$filename')";
+			INSERT INTO labelimglinks (path,available)
+			VALUES ('$filename','1')";
 
 		if ($conn->query($sql) === TRUE) {
 			$conn->close();

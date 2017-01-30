@@ -9,6 +9,7 @@ if (!empty($_POST))
 	$source = mysqli_real_escape_string($db,($data->dataSrc));
 	$sql = "UPDATE `labelimglinks` SET `available` = 1 WHERE `labelimglinks`.`id` = '$source'";	
 	if ($db->query($sql) === TRUE) {
+		error_log("img ".$source." set to 1");
 	} else {
 		echo "Error: " . $sql . "<br>" . $db->error;
 	}

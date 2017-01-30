@@ -121,7 +121,7 @@ function onDlClicked(){
 	document.getElementById('imgCounter').innerHTML = "";
 }
 window.onbeforeunload = function(e) {
-	freeDL (token);
+	//freeDL (token);
 		console.log("Free " +token);
 };
 function freeDL (token){
