@@ -81,6 +81,49 @@ else // $_POST is empty.
     echo json_encode("No data");
 }
 
+
+//clean tmp folder
+$dir    = '../tmp';
+$tmpArray = scandir($dir);
+foreach($tmpArray as $file){
+	$folder = basename($file);
+	if(strlen($folder) == 40){
+		$sql = "SELECT `token`,`expires` FROM `labelimgexportlinks` WHERE token = '$folder'";
+		$tokens = $db->query($sql);
+		while ($token = $tokens->fetch_object()) {
+			if(date('Y-m-d H:i:s') > $token->expires ){
+				$sql = "DELETE FROM `labelimgexportlinks` WHERE token = '$folder'";	
+				if ($db->query($sql) === TRUE) {
+						rrmdir("../tmp/".$token);
+				} else {
+					echo "Error: " . $sql . "<br>" . $db->error;
+				}
+				error_log("Clean : ".$folder);
+			}else{
+				error_log("NO Clean : ".$folder);
+				exit;
+			}
+		}
+	}
+	// DANGER//rrmdir("../tmp/".$folder);
+}
+function rrmdir($src) {
+	$dir = opendir($src);
+	while(false !== ( $file = readdir($dir)) ) {
+		if (( $file != '.' ) && ( $file != '..' )) {
+			$full = $src . '/' . $file;
+			if ( is_dir($full) ) {
+				rrmdir($full);
+			}
+			else {
+				unlink($full);
+			}
+		}
+	}
+	closedir($dir);
+	rmdir($src);
+}
+
 function saveTmpFolder($token, $archivePath,$db){
 	//$token = $tmpFolder;
 	//$archivePath = $catRes->Category.".zip";
