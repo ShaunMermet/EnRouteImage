@@ -2,6 +2,15 @@
 	include('config.php');
 	session_start();
 	
+	//check auto-timeout
+	if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > SESSION_ACTIVE_TIME_IN_SEC)) {
+		// last request was more than (X minutes) ago
+		session_unset();     // unset $_SESSION variable for the run-time 
+		session_destroy();   // destroy session data in storage
+		header("location:http://" . $_SERVER['SERVER_NAME']."/login.php?location=" . urlencode($_SERVER['REQUEST_URI']));
+		exit;
+	}
+	$_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
 
 	if(!isset($_SESSION['login_user'])){
 		session_destroy();

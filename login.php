@@ -21,6 +21,7 @@
 		if($count == 1) {
 			//session_register("myusername");
 			$_SESSION['login_user'] = $myusername;
+			$_SESSION['LAST_ACTIVITY'] = time(); // first activity time stamp
 			if(isset($_GET['location']))
 				header("location:http://" . $_SERVER['SERVER_NAME'].$_GET['location']);
 			else
