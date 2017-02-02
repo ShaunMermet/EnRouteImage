@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 02, 2017 at 01:24 AM
+-- Generation Time: Feb 02, 2017 at 02:25 AM
 -- Server version: 5.7.14
 -- PHP Version: 7.0.10
 
@@ -50,8 +50,6 @@ CREATE TABLE `labelimgcategories` (
   `Color` char(7) NOT NULL DEFAULT '#FFFFFF' COMMENT 'Color associated with the category'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-
-
 -- --------------------------------------------------------
 
 --
@@ -59,7 +57,7 @@ CREATE TABLE `labelimgcategories` (
 --
 
 CREATE TABLE `labelimgexportlinks` (
-  `id` int(11) NOT NULL,
+  `id` int(4) NOT NULL,
   `token` char(50) NOT NULL,
   `archivePath` char(100) NOT NULL,
   `expires` timestamp NOT NULL
@@ -76,7 +74,7 @@ CREATE TABLE `labelimglinks` (
   `path` char(250) NOT NULL,
   `validated` tinyint(1) NOT NULL DEFAULT '0',
   `available` tinyint(4) NOT NULL DEFAULT '1',
-  `requested` datetime NOT NULL
+  `requested` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -86,7 +84,7 @@ CREATE TABLE `labelimglinks` (
 --
 
 CREATE TABLE `labelimgusers` (
-  `id` int(11) NOT NULL,
+  `id` int(4) NOT NULL,
   `username` char(30) NOT NULL,
   `password` char(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -160,7 +158,7 @@ ALTER TABLE `labelimgexportlinks`
 -- AUTO_INCREMENT for table `labelimglinks`
 --
 ALTER TABLE `labelimglinks`
-  MODIFY `id` int(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `id` int(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 --
 -- AUTO_INCREMENT for table `labelimgusers`
 --

@@ -1129,25 +1129,20 @@ class UploadHandler
         
     }
 	protected function insertInDB($filename){
-		$servername = "localhost";
-		$username = "labelImgManager";
-		$password = "Y8iRL0yA8zCLbAaV";
-		$dbname = "labelimgdb";
-	
-		$conn = new mysqli($servername, $username, $password, $dbname);
-		if ($conn->connect_error) {
-			die("Connection failed: " . $conn->connect_error);
+		$db = mysqli_connect(DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+		if ($db->connect_error) {
+			die("Connection failed: " . $db->connect_error);
 		} 
 		$sql = "
 			INSERT INTO labelimglinks (path,available)
 			VALUES ('$filename','1')";
 
-		if ($conn->query($sql) === TRUE) {
-			$conn->close();
+		if ($db->query($sql) === TRUE) {
+			$db->close();
 			return "OK";
 		} else {
-			$error = $conn->error;
-			$conn->close();
+			$error = $db->error;
+			$db->close();
 			error_log($error);
 			return $error;
 		}
@@ -1433,29 +1428,24 @@ class UploadHandler
         return $this->generate_response($response, $print_response);
     }
 	protected function deleteInDB($filename){
-		$servername = "localhost";
-		$username = "labelImgManager";
-		$password = "Y8iRL0yA8zCLbAaV";
-		$dbname = "labelimgdb";
-	
-		$conn = new mysqli($servername, $username, $password, $dbname);
-		if ($conn->connect_error) {
-			die("Connection failed: " . $conn->connect_error);
+		$db = mysqli_connect(DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
+		if ($db->connect_error) {
+			die("Connection failed: " . $db->connect_error);
 		} 
 		
 		$sql = "DELETE are FROM `labelimglinks`  lnk 
 				JOIN labelimgarea are 
 				ON are.source = lnk.id 
 				WHERE lnk.path = '$filename'";
-		$conn->query($sql);
+		$db->query($sql);
 		
 		$sql = "DELETE FROM `labelimglinks` WHERE `path`='$filename'";
 
-		if ($conn->query($sql) === TRUE) {
-			$conn->close();
+		if ($db->query($sql) === TRUE) {
+			$db->close();
 			return true;
 		} else {
-			$conn->close();
+			$db->close();
 			return false;
 		}
 	}
