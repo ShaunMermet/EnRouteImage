@@ -43,12 +43,7 @@
 
 
 </head>
-<body>
-
-
-<!--<h2><a href = "../logout.php">Sign Out</a></h2>-->
-
-
+<body id="Body">
 
 <div class="container">
 	<div class="column column-one">
@@ -81,6 +76,36 @@
             </ul>
         </div>
     </div>
+</div>
+<div class="container">Categories editor</div>
+<div class="container">
+	<div class="column column-one">
+		<select class="js-basic-single" id="comboEdit" style="max-width:90%;" style="width: 150px;" onchange="onComboEditChanged()"></select>
+		<br/>
+		<div id="comboFeedback"></div>
+	</div>
+	<div class="column column-two">
+		<button id="editButton"class="btn-mode" type="button" onclick="catEdit_onEditClicked()">Edit</button>
+	</div>
+	<div class="column column-three">
+		<button id="addButton"class="btn-mode" type="button" onclick="catEdit_onAddClicked()">Add</button>
+	</div>
+	
+</div>
+<div class="container" id="editCatPanel">
+	<div class="column column-one">
+		<!-- Textfield -->
+		<input type="text" name="Category name" id="catEditText">
+	</div>
+	<div class="column column-two">
+		<!-- ColorPicker -->
+		<input class="jscolor" id="colorPicker">
+	</div>
+	<div class="column column-three">
+		<button id="saveCatButton"class="btn-mode" type="button" onclick="catEdit_onSaveCatClicked()">Save</button>
+		<button id="deleteCatButton"class="btn-mode" type="button" onclick="catEdit_onDeleteClicked()">Delete</button>
+		<button id="closeCatEditButton"class="btn-mode" type="button" onclick="catEdit_onCloseCatEditClicked()">Close</button>
+	</div>
 </div>
 <!-- The file upload form used as target for the file upload widget -->
 <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
@@ -229,6 +254,8 @@
 <script src="js/main.js"></script>
 
 <script type="text/javascript" src="../js/export/export.js"></script>
+<script type="text/javascript" src="../js/jscolor.js"></script>
+<script type="text/javascript" src="../js/categoriesEditor.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
